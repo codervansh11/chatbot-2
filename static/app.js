@@ -1,4 +1,3 @@
-
 class Chatbox {
     constructor() {
         this.args = {
@@ -11,7 +10,6 @@ class Chatbox {
         this.messages = [];
     }
 
-    // Function to display the messages
     display() {
         const { openButton, chatBox, sendButton } = this.args;
 
@@ -28,65 +26,46 @@ class Chatbox {
 
     toggleState(chatbox) {
         this.state = !this.state;
-
-        // Show or hide the chatbox
-        if (this.state) {
-            chatbox.classList.add('chatbox--active');
-        } else {
-            chatbox.classList.remove('chatbox--active');
-        }
+        chatbox.classList.toggle('chatbox--active', this.state);
     }
 
     onSendButton(chatbox) {
-        // Extracting the text from user input 
         const textField = chatbox.querySelector('input');
-        let text1 = textField.value;
+        let text1 = textField.value.trim();
 
-        // Check if the text is empty
-        if (text1 === "") {
-            return;
-        }
+        if (!text1) return;
 
-        let msg1 = { name: "User", message: text1 };
-        this.messages.push(msg1);
+        this.messages.push({ name: "User", message: text1 });
+        this.updateChatText(chatbox);
+        textField.value = '';
 
-        // Sending a POST request to the endpoint 
-        fetch($SCRIPT_ROOT + '/predict', {
+        fetch(`${window.location.origin}/predict`, {
             method: 'POST',
-            body: JSON.stringify({ messages: text1 }),  // Ensure the key matches
+            body: JSON.stringify({ messages: text1 }),
             mode: 'cors',
             headers: {
                 'Content-Type': 'application/json'
             },
         })
-        .then(r => r.json())
-        .then(r => {
-            let msg2 = { name: "Sam", message: r.answer || "No response received." };  // Default message if answer is undefined
-            this.messages.push(msg2);
+        .then(response => response.json())
+        .then(data => {
+            this.messages.push({ name: "Sam", message: data.answer || "No response received." });
             this.updateChatText(chatbox);
-            textField.value = '';
-        }).catch((error) => {
+        })
+        .catch(error => {
             console.error("Error:", error);
+            this.messages.push({ name: "Sam", message: "Oops! Something went wrong." });
             this.updateChatText(chatbox);
-            textField.value = '';
         });
     }
 
     updateChatText(chatbox) {
-        var html = '';
-        this.messages.slice().reverse().forEach(function(item) {
-            if (item.name === "Sam") {
-                html += '<div class="messages__item messages__item--visitor">' + item.message + '</div>';
-            } else {
-                html += '<div class="messages__item messages__item--operator">' + item.message + '</div>';
-            }
-        });
-
-        const chatmessage = chatbox.querySelector('.chatbox__messages');
-        chatmessage.innerHTML = html; // Correct usage
+        const chatMessages = chatbox.querySelector('.chatbox__messages');
+        chatMessages.innerHTML = this.messages.slice().reverse().map(item => {
+            return `<div class="messages__item messages__item--${item.name === "Sam" ? "visitor" : "operator"}">${item.message}</div>`;
+        }).join('');
     }
 }
 
 const chatbox = new Chatbox();
 chatbox.display();
-
