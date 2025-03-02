@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-from chat import get_response  # Ensure 'get_response' is correctly implemented
+from chat import get_response  # Ensure this function is implemented correctly
 
 app = Flask(__name__)
 
@@ -10,21 +10,17 @@ def index_get():
 @app.post("/predict")
 def predict():
     data = request.get_json()
-    print("Received data:", data)  # Debugging input
 
-    text = data.get("messages")  # Ensure the key matches the frontend
-
-    if not text:
+    if not data or "message" not in data:
         return jsonify({"error": "No input provided"}), 400
 
-    response = get_response(text)
-    print("Chatbot response:", response)  # Debugging chatbot output
+    user_text = data["message"]
+    bot_response = get_response(user_text)
 
-    if not response:
+    if not bot_response:
         return jsonify({"error": "No response generated"}), 500
 
-    return jsonify({"answer": response})
-
+    return jsonify({"answer": bot_response})
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0" , port=5000 , debug=False)
+    app.run(host="0.0.0.0", port=5000, debug=False)  # Set host for deployment
