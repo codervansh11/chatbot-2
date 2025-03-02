@@ -66,6 +66,7 @@ Markdown==3.7
 markdown-it-py==3.0.0
 MarkupSafe==3.0.0
 matplotlib-inline==0.1.7
+maturin==1.8.2
 mdurl==0.1.2
 mistune==3.0.2
 ml-dtypes==0.4.1
@@ -83,6 +84,7 @@ numpy==2.0.2
 opt_einsum==3.4.0
 optree==0.13.0
 overrides==7.7.0
+package_name==0.1
 packaging==24.2
 pandas==2.2.3
 pandocfilters==1.5.1
